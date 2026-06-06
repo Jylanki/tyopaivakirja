@@ -147,52 +147,51 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 const FILE_NAME = 'Tyopaivakirja.xlsx';
 const SHEET = 'Ty%C3%B6p%C3%A4iv%C3%A4kirja';
 const HEADERS = ['Päivämäärä','Aloitus','Lopetus','Kesto','KM alku','KM loppu','Ajettu km','Päiväraha','Kommentti'];
+const CLIENT_ID = 'f84c2c04-1457-45a5-a5ae-09c33117eabc';
+const REDIRECT_URI = 'https://jylanki.github.io/tyopaivakirja/tyopaivakirja_2.html';
+const SCOPES = ['Files.ReadWrite', 'User.Read'];
+
 let accessToken = null;
 let dieta = 'ei';
 let msalApp = null;
 
-// ── MSAL init ──────────────────────────────────────────────
 async function initMsal() {
-  // Ladataan MSAL dynaamisesti
   await new Promise((resolve, reject) => {
     const s = document.createElement('script');
     s.src = 'https://cdn.jsdelivr.net/npm/@azure/msal-browser@3/lib/msal-browser.min.js';
-    s.onload = resolve;
-    s.onerror = reject;
+    s.onload = resolve; s.onerror = reject;
     document.head.appendChild(s);
   });
 
   msalApp = new msal.PublicClientApplication({
-    auth: {
-      clientId: 'f84c2c04-1457-45a5-a5ae-09c33117eabc',
-      authority: 'https://login.microsoftonline.com/common',
-      redirectUri: 'https://jylanki.github.io/tyopaivakirja/tyopaivakirja_2.html'
-    },
+    auth: { clientId: CLIENT_ID, authority: 'https://login.microsoftonline.com/common', redirectUri: REDIRECT_URI },
     cache: { cacheLocation: 'localStorage', storeAuthStateInCookie: true }
   });
   await msalApp.initialize();
 
-  // Tarkista onko jo kirjautunut
+  // Käsittele paluu Microsoftilta
+  const result = await msalApp.handleRedirectPromise().catch(e => { console.error(e); return null; });
+  if (result?.accessToken) {
+    accessToken = result.accessToken;
+    naytaKayttaja(result.account.name || result.account.username);
+    return;
+  }
+
+  // Tarkista tallennettu sessio
   const accounts = msalApp.getAllAccounts();
   if (accounts.length > 0) {
-    try {
-      const r = await msalApp.acquireTokenSilent({ scopes: ['Files.ReadWrite','User.Read'], account: accounts[0] });
-      accessToken = r.accessToken;
+    const silent = await msalApp.acquireTokenSilent({ scopes: SCOPES, account: accounts[0] }).catch(() => null);
+    if (silent?.accessToken) {
+      accessToken = silent.accessToken;
       naytaKayttaja(accounts[0].name || accounts[0].username);
-    } catch(e) { /* token vanhentunut, kirjaudutaan uudelleen */ }
+    }
   }
 }
 
 async function kirjaudu() {
-  if (!msalApp) { naytaStatus('Kirjasto ei ole vielä latautunut, odota hetki ja yritä uudelleen.','err'); return; }
-  try {
-    const r = await msalApp.loginPopup({ scopes: ['Files.ReadWrite','User.Read'] });
-    accessToken = r.accessToken;
-    naytaKayttaja(r.account.name || r.account.username);
-  } catch(e) {
-    if (!e.message?.includes('cancelled') && !e.message?.includes('user_cancelled'))
-      naytaStatus('Kirjautuminen epäonnistui: ' + e.message, 'err');
-  }
+  if (!msalApp) { naytaStatus('Odota hetki ja yritä uudelleen.','err'); return; }
+  // Käytetään redirect-kirjautumista (ei popup)
+  await msalApp.loginRedirect({ scopes: SCOPES });
 }
 
 function naytaKayttaja(nimi) {
