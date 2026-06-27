@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0060)file:///C:/Users/Win_10_Jylanki/Downloads/tyopaivakirja.html -->
+<!-- saved from url=(0062)file:///C:/Users/Win_10_Jylanki/Downloads/tyopaivakirja_6.html -->
 <html lang="fi"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
@@ -8,14 +8,13 @@
 <title>Työpäiväkirja</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f4f8; min-height: 100vh; padding: 12px; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f4f8; min-height: 100vh; padding: 12px 12px 40px; }
 .app { max-width: 420px; margin: 0 auto; }
 .hero { background: linear-gradient(135deg, #1D9E75, #0F6E56); border-radius: 16px; padding: 18px 20px 16px; margin-bottom: 12px; }
 .hero-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
-.hero-title { font-size: 18px; font-weight: 600; color: #E1F5EE; display: flex; align-items: center; gap: 8px; }
+.hero-title { font-size: 18px; font-weight: 600; color: #E1F5EE; }
 .hero-sub { font-size: 12px; color: #9FE1CB; margin-top: 4px; }
 .login-btn { background: #E1F5EE; color: #0F6E56; border: none; border-radius: 10px; padding: 8px 16px; font-size: 13px; font-weight: 600; cursor: pointer; }
-.login-btn:active { background: #9FE1CB; }
 .user-chip { background: rgba(255,255,255,0.15); border-radius: 20px; padding: 5px 12px 5px 5px; display: flex; align-items: center; gap: 8px; }
 .user-av { width: 26px; height: 26px; border-radius: 50%; background: #5DCAA5; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #085041; }
 .user-name { font-size: 12px; color: #E1F5EE; font-weight: 500; }
@@ -45,6 +44,16 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .db.active-paiva .db-lbl { color: #0F6E56; }
 .db.active-ei { background: #F9FAFB; border-color: #9CA3AF; }
 .db.active-ei .db-lbl { color: #374151; }
+/* Työajo */
+.tyoajo-item { background: #f8fffe; border: 1.5px solid #d1f5eb; border-radius: 12px; padding: 12px; margin-bottom: 8px; position: relative; }
+.tyoajo-num { font-size: 11px; color: #0F6E56; font-weight: 600; margin-bottom: 8px; }
+.poista-btn { position: absolute; top: 10px; right: 10px; background: none; border: none; color: #ccc; font-size: 18px; cursor: pointer; padding: 0; line-height: 1; }
+.poista-btn:hover { color: #e74c3c; }
+.lisaa-btn { width: 100%; padding: 10px; font-size: 13px; font-weight: 600; background: #E1F5EE; color: #0F6E56; border: 1.5px dashed #1D9E75; border-radius: 10px; cursor: pointer; margin-top: 4px; }
+.lisaa-btn:active { background: #9FE1CB; }
+.lisaa-btn:disabled { opacity: 0.4; cursor: default; }
+.tyoajo-summary { background: #f0fdf8; border-radius: 8px; padding: 8px 12px; margin-top: 8px; font-size: 13px; color: #0F6E56; font-weight: 500; display: none; }
+/* Buttons */
 .send-btn { width: 100%; padding: 15px; font-size: 16px; font-weight: 600; background: #1D9E75; color: white; border: none; border-radius: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 10px; }
 .send-btn:active { background: #0F6E56; }
 .send-btn:disabled { opacity: 0.45; cursor: default; }
@@ -54,7 +63,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 </style>
 </head>
 <body>
-<div class="app">
+<div class="app" autocomplete="new-password">
   <div class="hero">
     <div class="hero-top">
       <div class="hero-title">💼 Työpäiväkirja</div>
@@ -69,7 +78,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
     <div class="sec-label">Päivämäärä</div>
     <div class="date-row">
       <div class="field" style="flex:1;margin-bottom:0">
-        <input type="date" id="paivamaara" onchange="paivitaHeader()">
+        <input type="date" id="paivamaara" onchange="paivitaHeader();tallennaValiaikaisesti()" autocomplete="new-password">
       </div>
       <button class="today-pill" onclick="setToday()">📅 Tänään</button>
     </div>
@@ -78,10 +87,16 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
   <div class="card">
     <div class="sec-label">Työaika</div>
     <div class="row2">
-      <div class="field"><label>Aloitus</label><input type="time" id="aloitus" oninput="laskeKesto()" onchange="laskeKesto()"></div>
-      <div class="field"><label>Lopetus</label><input type="time" id="lopetus" oninput="laskeKesto()" onchange="laskeKesto()"></div>
+      <div class="field"><label>Aloitus</label><input type="time" id="aloitus" oninput="laskeKesto();tallennaValiaikaisesti()" onchange="laskeKesto();tallennaValiaikaisesti()" autocomplete="new-password"></div>
+      <div class="field"><label>Lopetus</label><input type="time" id="lopetus" oninput="laskeKesto();tallennaValiaikaisesti()" onchange="laskeKesto();tallennaValiaikaisesti()" autocomplete="new-password"></div>
     </div>
     <div class="divider"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+      <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:14px;color:#555;">
+        <input type="checkbox" id="ruokatauko" onchange="laskeKesto();tallennaValiaikaisesti()" style="width:20px;height:20px;accent-color:#1D9E75;cursor:pointer;" autocomplete="new-password">
+        Ruokatauko (−30 min)
+      </label>
+    </div>
     <div class="stat-row">
       <div class="stat-lbl">⏱ Kesto</div>
       <div class="stat-val" id="kesto-val">–</div>
@@ -93,16 +108,24 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
     <div class="row2">
       <div class="field">
         <label>Aloitus km</label>
-        <input type="number" id="km-alku" placeholder="0" min="0" oninput="laskeKm()">
+        <input type="number" id="km-alku" placeholder="0" min="0" oninput="laskeKm();tallennaValiaikaisesti()" autocomplete="new-password">
         <div class="km-hint" id="km-hint" style="display:none">↑ Edellisen päivän lopetus</div>
       </div>
-      <div class="field"><label>Lopetus km</label><input type="number" id="km-loppu" placeholder="0" min="0" oninput="laskeKm()"></div>
+      <div class="field"><label>Lopetus km</label><input type="number" id="km-loppu" placeholder="0" min="0" oninput="laskeKm();tallennaValiaikaisesti()" autocomplete="new-password"></div>
     </div>
     <div class="divider"></div>
     <div class="stat-row">
-      <div class="stat-lbl">🚗 Ajettu</div>
+      <div class="stat-lbl">🚗 Kokonaiskilometrit</div>
       <div class="stat-val" id="km-diff">–</div>
     </div>
+  </div>
+
+  <!-- Työajot -->
+  <div class="card">
+    <div class="sec-label">Työajot omalla autolla</div>
+    <div id="tyoajot-lista"></div>
+    <button class="lisaa-btn" id="lisaa-btn" onclick="lisaaTyoajo()">+ Lisää työajo</button>
+    <div class="tyoajo-summary" id="tyoajo-summary"></div>
   </div>
 
   <div class="card">
@@ -117,7 +140,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
   <div class="card">
     <div class="sec-label">Kommentti</div>
     <div class="field">
-      <textarea id="kommentti" placeholder="Valinnainen huomio päivästä..."></textarea>
+      <textarea id="kommentti" placeholder="Valinnainen huomio päivästä..." oninput="tallennaValiaikaisesti()"></textarea>
     </div>
   </div>
 
@@ -126,51 +149,42 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 </div>
 
 <script>
-// ── Asetukset ──────────────────────────────────────────────
 const CLIENT_ID    = 'f84c2c04-1457-45a5-a5ae-09c33117eabc';
-const REDIRECT_URI = 'https://jylanki.github.io/tyopaivakirja/';
+const REDIRECT_URI = 'https://verdant-treacle-9dc069.netlify.app';
 const SCOPES       = 'Files.ReadWrite User.Read';
-const FILE_NAME    = 'Tyopaivakirja.xlsx';
+const FILE_NAME    = 'Tyopaivakirja_1.xlsx';
 const SHEET        = 'Ty%C3%B6p%C3%A4iv%C3%A4kirja';
-const HEADERS      = ['Päivämäärä','Aloitus','Lopetus','Kesto','KM alku','KM loppu','Ajettu km','Päiväraha','Kommentti'];
 
 let accessToken = null;
 let dieta = 'ei';
+let tyoajoLaskuri = 0;
 
-// ── OAuth2 implicit flow (ei kirjastoja) ───────────────────
+// ── OAuth ─────────────────────────────────────────────────
 function kirjaudu() {
   const state = Math.random().toString(36).substring(2);
   sessionStorage.setItem('oauth_state', state);
-  const url = 'https://login.microsoftonline.com/consumers/oauth2/v2.0/authorize'
+  window.location.href = 'https://login.microsoftonline.com/consumers/oauth2/v2.0/authorize'
     + '?client_id=' + CLIENT_ID
     + '&response_type=token'
     + '&redirect_uri=' + encodeURIComponent(REDIRECT_URI)
     + '&scope=' + encodeURIComponent(SCOPES)
     + '&state=' + state
     + '&response_mode=fragment';
-  window.location.href = url;
 }
 
 function tarkistaToken() {
-  // Luetaan token URL-hashista kirjautumisen jälkeen
   const hash = window.location.hash.substring(1);
   if (!hash) return;
   const params = {};
   hash.split('&').forEach(p => { const [k,v] = p.split('='); params[k] = decodeURIComponent(v||''); });
-
   if (params.access_token) {
     accessToken = params.access_token;
-    // Siivotaan hash URL:sta
     history.replaceState(null, '', window.location.pathname);
-    // Haetaan käyttäjätiedot
     fetch('https://graph.microsoft.com/v1.0/me?$select=displayName,mail', {
       headers: { Authorization: 'Bearer ' + accessToken }
-    })
-    .then(r => r.json())
-    .then(u => naytaKayttaja(u.displayName || u.mail || 'Käyttäjä'))
-    .catch(() => naytaKayttaja('Käyttäjä'));
+    }).then(r=>r.json()).then(u=>naytaKayttaja(u.displayName||u.mail||'Käyttäjä')).catch(()=>naytaKayttaja('Käyttäjä'));
   } else if (params.error) {
-    naytaStatus('Kirjautumisvirhe: ' + (params.error_description || params.error), 'err');
+    naytaStatus('Kirjautumisvirhe: ' + (params.error_description||params.error), 'err');
   }
 }
 
@@ -179,8 +193,11 @@ function naytaKayttaja(nimi) {
   document.getElementById('user-area').innerHTML =
     `<div class="user-chip"><div class="user-av">${initials}</div><div class="user-name">${nimi}</div></div>`;
   document.getElementById('hero-sub').textContent = 'Kirjautunut — valmis tallentamaan';
-  lataaEdellinenKm();
-  setToday();
+  palautaValiaikaisesti();
+  if (!localStorage.getItem('paivakirja_draft')) {
+    lataaEdellinenKm();
+    setToday();
+  }
 }
 
 // ── Edellinen km ──────────────────────────────────────────
@@ -193,12 +210,159 @@ function lataaEdellinenKm() {
   }
 }
 
+// ── Työajot ───────────────────────────────────────────────
+
+function lisaaTyoajo() {
+  const lista = document.getElementById('tyoajot-lista');
+  const items = lista.querySelectorAll('.tyoajo-item');
+  if (items.length >= 5) return;
+
+  tyoajoLaskuri++;
+  const id = tyoajoLaskuri;
+  const nro = items.length; // 0 = eka
+
+  // Eka työajo: päivän aloitus + 32, muut: edellisen lopetus tai tyhjä
+  let aloKm = '';
+  if (nro === 0) {
+    const paiva = parseFloat(document.getElementById('km-alku').value);
+    console.log('Eka työajo, päivän aloitus km:', paiva, '-> aloKm:', paiva+32);
+    if (!isNaN(paiva)) aloKm = (paiva + 32).toString();
+  } else {
+    const edId = items[nro - 1].dataset.id;
+    const edLoppu = document.getElementById('tl-' + edId).value;
+    console.log('Työajo nro', nro+1, 'edellinen id:', edId, 'edellinen loppu:', edLoppu);
+    if (edLoppu !== '') aloKm = edLoppu;
+  }
+  console.log('Asetetaan aloKm:', aloKm);
+
+  const div = document.createElement('div');
+  div.className = 'tyoajo-item';
+  div.dataset.id = id;
+  div.innerHTML = `
+    <div class="tyoajo-num">Työajo ${nro + 1}</div>
+    <button class="poista-btn" onclick="poistaTyoajo(${id})">✕</button>
+    <div class="field" style="margin-bottom:8px;">
+      <label>Reitti (mistä → minne)</label>
+      <textarea id="tr-${id}" rows="1" placeholder="esim. Toimisto → Asiakas Oy"
+        style="resize:none;min-height:unset;padding:9px 12px;font-size:15px;border:1.5px solid #e5e7eb;border-radius:10px;width:100%;font-family:inherit;background:#fafafa;"
+        oninput="tallennaValiaikaisesti()"></textarea>
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label>Aloitus km</label>
+        <input type="number" id="ta-${id}" value="${aloKm}" min="0" autocomplete="new-password"
+          oninput="paivitaDiff(${id});laskeTyoajoYht();tallennaValiaikaisesti()" />
+      </div>
+      <div class="field">
+        <label>Lopetus km</label>
+        <input type="number" id="tl-${id}" placeholder="0" min="0" autocomplete="new-password"
+          oninput="paivitaDiff(${id});ketjuta(${id});laskeTyoajoYht();tallennaValiaikaisesti()" />
+      </div>
+    </div>
+    <div id="td-${id}" style="font-size:13px;color:#0F6E56;font-weight:500;margin-top:6px;"></div>
+  `;
+  lista.appendChild(div);
+  paivitaNumerot();
+  laskeTyoajoYht();
+  if (lista.querySelectorAll('.tyoajo-item').length >= 5)
+    document.getElementById('lisaa-btn').disabled = true;
+}
+
+function ketjuta(id) {
+  // Kun tämän lopetus muuttuu, päivitä SEURAAVAN aloitus
+  const l = parseFloat(document.getElementById('tl-' + id).value);
+  if (isNaN(l)) return;
+  const items = document.querySelectorAll('.tyoajo-item');
+  items.forEach((item, i) => {
+    if (parseInt(item.dataset.id) === id && i + 1 < items.length) {
+      const seuraavaId = items[i + 1].dataset.id;
+      document.getElementById('ta-' + seuraavaId).value = l;
+      paivitaDiff(seuraavaId);
+    }
+  });
+}
+
+function paivitaDiff(id) {
+  const a = parseFloat(document.getElementById('ta-' + id)?.value);
+  const l = parseFloat(document.getElementById('tl-' + id)?.value);
+  const el = document.getElementById('td-' + id);
+  if (el) el.textContent = (!isNaN(a) && !isNaN(l) && l >= a) ? '🚗 ' + (l - a).toFixed(0) + ' km' : '';
+}
+
+function poistaTyoajo(id) {
+  document.querySelector(`.tyoajo-item[data-id="${id}"]`)?.remove();
+  paivitaNumerot();
+  laskeTyoajoYht();
+  document.getElementById('lisaa-btn').disabled = false;
+}
+
+function paivitaNumerot() {
+  document.querySelectorAll('.tyoajo-item').forEach((item, i) => {
+    item.querySelector('.tyoajo-num').textContent = 'Työajo ' + (i + 1);
+  });
+}
+
+function laskeTyoajoYht() {
+  let yht = 0;
+  document.querySelectorAll('.tyoajo-item').forEach(item => {
+    const id = item.dataset.id;
+    const a = parseFloat(document.getElementById('ta-' + id)?.value);
+    const l = parseFloat(document.getElementById('tl-' + id)?.value);
+    if (!isNaN(a) && !isNaN(l) && l >= a) yht += (l - a);
+  });
+  const summary = document.getElementById('tyoajo-summary');
+  if (document.querySelectorAll('.tyoajo-item').length > 0 && yht > 0) {
+    summary.textContent = '🚗 Työajot yhteensä: ' + yht.toFixed(0) + ' km';
+    summary.style.display = 'block';
+  } else {
+    summary.style.display = 'none';
+  }
+}
+
+function lisaaTyoajoArvoilla(reitti, alku, loppu) {
+  tyoajoLaskuri++;
+  const id = tyoajoLaskuri;
+  const lista = document.getElementById('tyoajot-lista');
+  const nro = lista.querySelectorAll('.tyoajo-item').length;
+  const div = document.createElement('div');
+  div.className = 'tyoajo-item';
+  div.dataset.id = id;
+  div.innerHTML = `
+    <div class="tyoajo-num">Työajo ${nro + 1}</div>
+    <button class="poista-btn" onclick="poistaTyoajo(${id})">✕</button>
+    <div class="field" style="margin-bottom:8px;">
+      <label>Reitti (mistä → minne)</label>
+      <textarea id="tr-${id}" rows="1" placeholder="esim. Toimisto → Asiakas Oy"
+        style="resize:none;min-height:unset;padding:9px 12px;font-size:15px;border:1.5px solid #e5e7eb;border-radius:10px;width:100%;font-family:inherit;background:#fafafa;"
+        oninput="tallennaValiaikaisesti()">${reitti}</textarea>
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label>Aloitus km</label>
+        <input type="number" id="ta-${id}" value="${alku}" min="0" autocomplete="new-password"
+          oninput="paivitaDiff(${id});laskeTyoajoYht();tallennaValiaikaisesti()" />
+      </div>
+      <div class="field">
+        <label>Lopetus km</label>
+        <input type="number" id="tl-${id}" value="${loppu}" min="0" autocomplete="new-password"
+          oninput="paivitaDiff(${id});ketjuta(${id});laskeTyoajoYht();tallennaValiaikaisesti()" />
+      </div>
+    </div>
+    <div id="td-${id}" style="font-size:13px;color:#0F6E56;font-weight:500;margin-top:6px;"></div>
+  `;
+  lista.appendChild(div);
+  paivitaDiff(id);
+  if (lista.querySelectorAll('.tyoajo-item').length >= 5)
+    document.getElementById('lisaa-btn').disabled = true;
+}
+
 // ── UI ────────────────────────────────────────────────────
 function valitseDieta(v) {
   dieta = v;
   ['ei','puoli','paiva'].forEach(k => {
     document.getElementById('db-'+k).className = 'db'+(k===v?' active-'+k:'');
   });
+  tallennaValiaikaisesti();
 }
 
 function setToday() {
@@ -209,18 +373,23 @@ function setToday() {
 function paivitaHeader() {
   const v = document.getElementById('paivamaara').value;
   if (!v) return;
-  const d = new Date(v+'T12:00:00');
-  if (accessToken) document.getElementById('hero-sub').textContent =
-    d.toLocaleDateString('fi-FI',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  if (accessToken) {
+    const d = new Date(v+'T12:00:00');
+    document.getElementById('hero-sub').textContent =
+      d.toLocaleDateString('fi-FI',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  }
 }
 
 function laskeKesto() {
   const a = document.getElementById('aloitus').value;
   const l = document.getElementById('lopetus').value;
+  const ruokatauko = document.getElementById('ruokatauko').checked;
   const el = document.getElementById('kesto-val');
   if (a && l) {
     const [ah,am]=a.split(':').map(Number),[lh,lm]=l.split(':').map(Number);
     let m=(lh*60+lm)-(ah*60+am); if(m<0)m+=1440;
+    if (ruokatauko) m -= 30;
+    if (m < 0) m = 0;
     el.textContent=Math.floor(m/60)+'h '+(m%60)+'min'; el.className='stat-val filled';
   } else { el.textContent='–'; el.className='stat-val'; }
 }
@@ -256,58 +425,150 @@ async function lisaaRivi(fileId, rivi) {
   );
   const rd = await r1.json();
   const nextRow = (rd.rowCount||1)+1;
-  if (nextRow===2) {
-    await fetch(
-      `https://graph.microsoft.com/v1.0/me/drive/items/${fileId}/workbook/worksheets/${SHEET}/range(address='A1:I1')`,
-      { method:'PATCH', headers:{Authorization:'Bearer '+accessToken,'Content-Type':'application/json'},
-        body: JSON.stringify({values:[HEADERS]}) }
-    );
-  }
+  const cols = rivi.length;
+  const colLetter = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U'][cols-1];
   const r2 = await fetch(
-    `https://graph.microsoft.com/v1.0/me/drive/items/${fileId}/workbook/worksheets/${SHEET}/range(address='A${nextRow}:I${nextRow}')`,
+    `https://graph.microsoft.com/v1.0/me/drive/items/${fileId}/workbook/worksheets/${SHEET}/range(address='A${nextRow}:${colLetter}${nextRow}')`,
     { method:'PATCH', headers:{Authorization:'Bearer '+accessToken,'Content-Type':'application/json'},
       body: JSON.stringify({values:[rivi]}) }
   );
   return r2.ok;
 }
 
+// ── Lähetä ────────────────────────────────────────────────
 async function lahetaData() {
   if (!accessToken) { naytaStatus('Kirjaudu ensin Microsoft-tilille.','err'); return; }
-  const pvm=document.getElementById('paivamaara').value;
+  const pvmRaw=document.getElementById('paivamaara').value;
+  const pvmOsat=pvmRaw.split('-');
+  const pvm=pvmOsat[2]+'.'+pvmOsat[1]+'.'+pvmOsat[0];
   const aloitus=document.getElementById('aloitus').value;
   const lopetus=document.getElementById('lopetus').value;
   const kmAlku=document.getElementById('km-alku').value;
   const kmLoppu=document.getElementById('km-loppu').value;
   const kommentti=document.getElementById('kommentti').value;
-  if (!pvm||!aloitus||!lopetus||!kmAlku||!kmLoppu) { naytaStatus('Täytä kaikki pakolliset kentät.','err'); return; }
+  const ruokatauko=document.getElementById('ruokatauko').checked;
+
+  if (!pvmRaw||!aloitus||!lopetus||!kmAlku||!kmLoppu) { naytaStatus('Täytä kaikki pakolliset kentät.','err'); return; }
+
   const [ah,am]=aloitus.split(':').map(Number),[lh,lm]=lopetus.split(':').map(Number);
   let mins=(lh*60+lm)-(ah*60+am); if(mins<0)mins+=1440;
+  if (ruokatauko) mins-=30; if(mins<0)mins=0;
   const kesto=Math.floor(mins/60)+'h '+(mins%60)+'min';
-  const kmDiff=(parseFloat(kmLoppu)-parseFloat(kmAlku)).toFixed(0);
+  const kokonaisKm=(parseFloat(kmLoppu)-parseFloat(kmAlku)).toFixed(0);
   const dietaLbl=dieta==='paiva'?'Päiväraha':dieta==='puoli'?'Puolipäiväraha':'';
+
+  // Kerää työajot
+  const items=document.querySelectorAll('.tyoajo-item');
+  let tyoajotData=[];
+  let tyoajoYht=0;
+  for(let i=0;i<5;i++){
+    if(i<items.length){
+      const id=items[i].dataset.id;
+      const reitti=document.getElementById('tr-'+id)?.value||'';
+      const taAlku=parseFloat(document.getElementById('ta-'+id)?.value);
+      const taLoppu=parseFloat(document.getElementById('tl-'+id)?.value);
+      const taKm=(!isNaN(taAlku)&&!isNaN(taLoppu)&&taLoppu>=taAlku)?(taLoppu-taAlku).toFixed(0):'';
+      if(taKm) tyoajoYht+=parseFloat(taKm);
+      tyoajotData.push(reitti, taKm);
+    } else {
+      tyoajotData.push('','');
+    }
+  }
+
+  const tyomatkRaw = parseFloat(kokonaisKm) - tyoajoYht;
+  const tyomatkKm = tyomatkRaw >= 0 ? tyomatkRaw.toFixed(0) : '0';
+  const rivi=[pvm,aloitus,lopetus,kesto,kmAlku,kmLoppu,kokonaisKm,...tyoajotData,tyoajoYht>0?tyoajoYht.toFixed(0):'',tyomatkKm,dietaLbl,kommentti];
+
   const btn=document.getElementById('send-btn');
   btn.disabled=true; btn.textContent='⏳ Tallennetaan...';
   try {
     const fileId=await haeFileId();
-    if (!fileId) { naytaStatus(`Tiedostoa "${FILE_NAME}" ei löydy OneDriven juuresta.`,'err'); btn.disabled=false; btn.textContent='☁️ Tallenna OneDriveen'; return; }
-    const ok=await lisaaRivi(fileId,[pvm,aloitus,lopetus,kesto,kmAlku,kmLoppu,kmDiff,dietaLbl,kommentti]);
-    if (ok) {
-      localStorage.setItem('viim_km_loppu', kmLoppu);
+    if(!fileId){naytaStatus(`Tiedostoa "${FILE_NAME}" ei löydy OneDriven juuresta.`,'err');btn.disabled=false;btn.textContent='☁️ Tallenna OneDriveen';return;}
+    const ok=await lisaaRivi(fileId,rivi);
+    if(ok){
+      localStorage.setItem('viim_km_loppu',kmLoppu);
       naytaStatus('Rivi tallennettu OneDriveen!','ok');
       document.getElementById('kommentti').value='';
       document.getElementById('km-alku').value=kmLoppu;
       document.getElementById('km-hint').style.display='block';
       document.getElementById('km-loppu').value='';
-      valitseDieta('ei'); laskeKm();
+      document.getElementById('tyoajot-lista').innerHTML='';
+      document.getElementById('tyoajo-summary').style.display='none';
+      document.getElementById('lisaa-btn').disabled=false;
+      tyoajoLaskuri=0;
+      valitseDieta('ei');
+      document.getElementById('ruokatauko').checked=false;
+      localStorage.removeItem('paivakirja_draft');
+      laskeKm(); laskeKesto();
     } else naytaStatus('Kirjoitusvirhe — yritä uudelleen.','err');
-  } catch(e) { naytaStatus('Virhe: '+e.message,'err'); }
+  } catch(e){naytaStatus('Virhe: '+e.message,'err');}
   btn.disabled=false; btn.textContent='☁️ Tallenna OneDriveen';
 }
 
-// ── Käynnistys ────────────────────────────────────────────
+// ── Välitallennus ─────────────────────────────────────────
+function tallennaValiaikaisesti() {
+  const data = {
+    paivamaara: document.getElementById('paivamaara').value,
+    aloitus: document.getElementById('aloitus').value,
+    lopetus: document.getElementById('lopetus').value,
+    kmAlku: document.getElementById('km-alku').value,
+    kmLoppu: document.getElementById('km-loppu').value,
+    ruokatauko: document.getElementById('ruokatauko').checked,
+    dieta: dieta,
+    kommentti: document.getElementById('kommentti').value,
+    tyoajot: []
+  };
+  document.querySelectorAll('.tyoajo-item').forEach(item => {
+    const id = item.dataset.id;
+    data.tyoajot.push({
+      reitti: document.getElementById('tr-'+id)?.value || '',
+      alku: document.getElementById('ta-'+id)?.value || '',
+      loppu: document.getElementById('tl-'+id)?.value || ''
+    });
+  });
+  localStorage.setItem('paivakirja_draft', JSON.stringify(data));
+}
+
+function palautaValiaikaisesti() {
+  const raw = localStorage.getItem('paivakirja_draft');
+  if (!raw) return;
+  try {
+    const data = JSON.parse(raw);
+    // Tarkista että draft on tältä päivältä
+    const tanaan = new Date().toISOString().split('T')[0];
+    if (data.paivamaara !== tanaan) { localStorage.removeItem('paivakirja_draft'); return; }
+    document.getElementById('paivamaara').value = data.paivamaara;
+    document.getElementById('aloitus').value = data.aloitus || '';
+    document.getElementById('lopetus').value = data.lopetus || '';
+    document.getElementById('km-alku').value = data.kmAlku || '';
+    document.getElementById('km-loppu').value = data.kmLoppu || '';
+    document.getElementById('ruokatauko').checked = data.ruokatauko || false;
+    document.getElementById('kommentti').value = data.kommentti || '';
+    if (data.dieta) valitseDieta(data.dieta);
+    // Palauta työajot
+    if (data.tyoajot && data.tyoajot.length > 0) {
+      data.tyoajot.forEach(ta => {
+        lisaaTyoajoArvoilla(ta.reitti, ta.alku, ta.loppu);
+      });
+    }
+    laskeKesto(); laskeKm(); laskeTyoajoYht();
+    paivitaHeader();
+  } catch(e) { localStorage.removeItem('paivakirja_draft'); }
+}
+
+
+function estaBrowserAutofill() {
+  // Pelkkä autocomplete="new-password" riittää, ei tarvita readonly-trikkiä
+  document.querySelectorAll('input').forEach(el => {
+    el.setAttribute('autocomplete', 'new-password');
+  });
+}
+
+window.addEventListener('load', estaBrowserAutofill);
+
 setToday();
 valitseDieta('ei');
-tarkistaToken(); // Tarkistetaan heti onko tultu takaisin kirjautumisesta
+tarkistaToken();
 </script>
 
 
