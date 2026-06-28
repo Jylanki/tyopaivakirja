@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0063)file:///C:/Users/Win_10_Jylanki/Downloads/tyopaivakirja_12.html -->
+<!-- saved from url=(0063)file:///C:/Users/Win_10_Jylanki/Downloads/tyopaivakirja_13.html -->
 <html lang="fi"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
@@ -426,7 +426,7 @@ async function lisaaRivi(fileId, rivi) {
   const rd = await r1.json();
   const nextRow = (rd.rowCount||1)+1;
   const cols = rivi.length;
-  const colLetter = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U'][cols-1];
+  const colLetter = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W'][cols-1];
   const r2 = await fetch(
     `https://graph.microsoft.com/v1.0/me/drive/items/${fileId}/workbook/worksheets/${SHEET}/range(address='A${nextRow}:${colLetter}${nextRow}')`,
     { method:'PATCH', headers:{Authorization:'Bearer '+accessToken,'Content-Type':'application/json'},
