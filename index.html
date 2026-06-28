@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0063)file:///C:/Users/Win_10_Jylanki/Downloads/tyopaivakirja_14.html -->
+<!-- saved from url=(0063)file:///C:/Users/Win_10_Jylanki/Downloads/tyopaivakirja_16.html -->
 <html lang="fi"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
@@ -457,7 +457,7 @@ async function lahetaData() {
   const [ah,am]=aloitus.split(':').map(Number),[lh,lm]=lopetus.split(':').map(Number);
   let mins=(lh*60+lm)-(ah*60+am); if(mins<0)mins+=1440;
   if (ruokatauko) mins-=30; if(mins<0)mins=0;
-  const kesto=Math.floor(mins/60)+'h '+(mins%60)+'min';
+  const kesto=Number((mins/60).toFixed(2)); // esim. 7.75
   const kokonaisKm=(parseFloat(kmLoppu)-parseFloat(kmAlku)).toFixed(0);
   const dietaLbl=dieta==='paiva'?'Päiväraha':dieta==='puoli'?'Puolipäiväraha':'';
 
