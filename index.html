@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0063)file:///C:/Users/Win_10_Jylanki/Downloads/tyopaivakirja_10.html -->
+<!-- saved from url=(0063)file:///C:/Users/Win_10_Jylanki/Downloads/tyopaivakirja_12.html -->
 <html lang="fi"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
@@ -432,6 +432,10 @@ async function lisaaRivi(fileId, rivi) {
     { method:'PATCH', headers:{Authorization:'Bearer '+accessToken,'Content-Type':'application/json'},
       body: JSON.stringify({values:[rivi]}) }
   );
+  if (!r2.ok) {
+    const errText = await r2.text();
+    console.error('Graph API virhe:', r2.status, errText);
+  }
   return r2.ok;
 }
 
