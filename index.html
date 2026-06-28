@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0063)file:///C:/Users/Win_10_Jylanki/Downloads/tyopaivakirja_13.html -->
+<!-- saved from url=(0063)file:///C:/Users/Win_10_Jylanki/Downloads/tyopaivakirja_14.html -->
 <html lang="fi"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
@@ -493,7 +493,10 @@ async function lahetaData() {
     if(ok){
       localStorage.setItem('viim_km_loppu',kmLoppu);
       naytaStatus('Rivi tallennettu OneDriveen!','ok');
+      // Nollataan lomake
       document.getElementById('kommentti').value='';
+      document.getElementById('aloitus').value='';
+      document.getElementById('lopetus').value='';
       document.getElementById('km-alku').value=kmLoppu;
       document.getElementById('km-hint').style.display='block';
       document.getElementById('km-loppu').value='';
@@ -505,6 +508,11 @@ async function lahetaData() {
       document.getElementById('ruokatauko').checked=false;
       localStorage.removeItem('paivakirja_draft');
       laskeKm(); laskeKesto();
+      // Häivytä onnistumisviesti 3 sekunnin kuluttua
+      setTimeout(() => {
+        const el = document.getElementById('status-msg');
+        el.style.display='none';
+      }, 3000);
     } else naytaStatus('Kirjoitusvirhe — yritä uudelleen.','err');
   } catch(e){naytaStatus('Virhe: '+e.message,'err');}
   btn.disabled=false; btn.textContent='☁️ Tallenna OneDriveen';
