@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0062)file:///C:/Users/Win_10_Jylanki/Downloads/tyopaivakirja_8.html -->
+<!-- saved from url=(0062)file:///C:/Users/Win_10_Jylanki/Downloads/tyopaivakirja_9.html -->
 <html lang="fi"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
@@ -477,7 +477,8 @@ async function lahetaData() {
 
   const tyomatkRaw = parseFloat(kokonaisKm) - tyoajoYht;
   const tyomatkKm = tyomatkRaw >= 0 ? tyomatkRaw.toFixed(0) : '0';
-  const rivi=[pvm,aloitus,lopetus,kesto,kmAlku,kmLoppu,kokonaisKm,...tyoajotData,tyoajoYht>0?tyoajoYht.toFixed(0):'',tyomatkKm,dietaLbl,kommentti];
+  const ruokatauko_txt = ruokatauko ? '30 min' : '';
+  const rivi=[pvm,aloitus,lopetus,kesto,ruokatauko_txt,kmAlku,kmLoppu,kokonaisKm,...tyoajotData,tyoajoYht>0?tyoajoYht.toFixed(0):'',tyomatkKm,dietaLbl,kommentti];
 
   const btn=document.getElementById('send-btn');
   btn.disabled=true; btn.textContent='⏳ Tallennetaan...';
