@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0063)file:///C:/Users/Win_10_Jylanki/Downloads/tyopaivakirja_16.html -->
+<!-- saved from url=(0063)file:///C:/Users/Win_10_Jylanki/Downloads/tyopaivakirja_17.html -->
 <html lang="fi"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
@@ -179,10 +179,17 @@ function tarkistaToken() {
   hash.split('&').forEach(p => { const [k,v] = p.split('='); params[k] = decodeURIComponent(v||''); });
   if (params.access_token) {
     accessToken = params.access_token;
+    // Tallennetaan token vanhenemisaika (55 min varmuusmarginaalilla)
+    const expiry = Date.now() + 55 * 60 * 1000;
+    localStorage.setItem('token_expiry', expiry);
     history.replaceState(null, '', window.location.pathname);
     fetch('https://graph.microsoft.com/v1.0/me?$select=displayName,mail', {
       headers: { Authorization: 'Bearer ' + accessToken }
     }).then(r=>r.json()).then(u=>naytaKayttaja(u.displayName||u.mail||'Käyttäjä')).catch(()=>naytaKayttaja('Käyttäjä'));
+    // Muistuta kirjautumisesta 5 min ennen vanhenemista
+    setTimeout(() => {
+      naytaStatus('⚠️ Yhteys vanhenee pian — tallenna tiedot tai kirjaudu uudelleen!', 'err');
+    }, 50 * 60 * 1000);
   } else if (params.error) {
     naytaStatus('Kirjautumisvirhe: ' + (params.error_description||params.error), 'err');
   }
@@ -193,8 +200,11 @@ function naytaKayttaja(nimi) {
   document.getElementById('user-area').innerHTML =
     `<div class="user-chip"><div class="user-av">${initials}</div><div class="user-name">${nimi}</div></div>`;
   document.getElementById('hero-sub').textContent = 'Kirjautunut — valmis tallentamaan';
-  palautaValiaikaisesti();
-  if (!localStorage.getItem('paivakirja_draft')) {
+  // Palauta aina draft jos on olemassa, muuten lataa edellinen km
+  const draft = localStorage.getItem('paivakirja_draft');
+  if (draft) {
+    palautaValiaikaisesti();
+  } else {
     lataaEdellinenKm();
     setToday();
   }
