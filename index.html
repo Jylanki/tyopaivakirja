@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0063)file:///C:/Users/Win_10_Jylanki/Downloads/tyopaivakirja_17.html -->
+<!-- saved from url=(0063)file:///C:/Users/Win_10_Jylanki/Downloads/tyopaivakirja_19.html -->
 <html lang="fi"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
@@ -183,6 +183,8 @@ function tarkistaToken() {
     const expiry = Date.now() + 55 * 60 * 1000;
     localStorage.setItem('token_expiry', expiry);
     history.replaceState(null, '', window.location.pathname);
+    // Palautetaan draft HETI ennen käyttäjätietojen hakua
+    palautaValiaikaisesti();
     fetch('https://graph.microsoft.com/v1.0/me?$select=displayName,mail', {
       headers: { Authorization: 'Bearer ' + accessToken }
     }).then(r=>r.json()).then(u=>naytaKayttaja(u.displayName||u.mail||'Käyttäjä')).catch(()=>naytaKayttaja('Käyttäjä'));
@@ -200,11 +202,9 @@ function naytaKayttaja(nimi) {
   document.getElementById('user-area').innerHTML =
     `<div class="user-chip"><div class="user-av">${initials}</div><div class="user-name">${nimi}</div></div>`;
   document.getElementById('hero-sub').textContent = 'Kirjautunut — valmis tallentamaan';
-  // Palauta aina draft jos on olemassa, muuten lataa edellinen km
+  // Draft on jo palautettu tarkistaToken:ssa - tässä vain tarkistetaan onko se
   const draft = localStorage.getItem('paivakirja_draft');
-  if (draft) {
-    palautaValiaikaisesti();
-  } else {
+  if (!draft) {
     lataaEdellinenKm();
     setToday();
   }
